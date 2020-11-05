@@ -33,7 +33,9 @@ class Main
 					break;
 				
 				case 2:
-				
+					System.out.println("Enter packed file name");
+					String Filename =sobj.next();
+					Unpacker obj = new Unpacker(Filename);
 					break;
 					
 				case 3:
@@ -90,6 +92,10 @@ class Packer
 	public void PackFile(String FilePath)
 	{
 		byte Header[] = new byte[100];
+		byte Buffer[] = new byte[1024];
+		int length = 0;
+
+		FileInputStream istream = null;
 		
 		File fobj=null;
 		fobj=new File(FilePath);
@@ -104,11 +110,57 @@ class Packer
 		Header = temp.getBytes();
 		try
 		{
+			istream = new FileInputStream(FilePath);
+
 			outstream.write(Header,0,Header.length);
+			while((length = istream.read(Buffer)) > 0)
+			{
+				outstream.write(Buffer,0,length);
+			}
+
+			istream.close();
  		}
  		catch(Exception obj)
  		{
  			System.out.println(obj);
  		}
  	}
+}
+
+
+class Unpacker
+{
+	public FileOutputStream outstream=null;
+	public Unpacker(String src)
+	{
+		unpackfile(src);
+	}	
+	
+	public void unpackfile(String FilePath)
+	{
+		try
+		{
+			FileInputStream instream= new FileInputStream(FilePath);
+			byte[] Header = new byte[100];
+			int length=0;
+			while((length=instream.read(Header,0,100))>0)
+			{
+				String str=new String(Header);
+				String ext = str.substring(str.lastIndexOf("/"));
+				ext=ext.substring(1);
+				String words[]=ext.split("\\s");
+				String name = words[0];
+				int size=Integer.parseInt(words[1]);
+				byte arr[]=new byte[size];
+				instream.read(arr,0,size);
+				
+				FileOutputStream fout = new FileOutputStream(name);
+				fout.write(arr,0,size);
+			}
+		}
+		catch(Exception obj)
+		{
+			System.out.println(obj);
+		}
+	}
 }
